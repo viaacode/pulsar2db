@@ -156,12 +156,13 @@ async fn main() -> Result<(), anyhow::Error> {
             "be.meemoo.sipin.aip.create" => {
                 let status: &str = "AIP_CREATED";
                 let _rows = client.execute(
-                    "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3, cp_id=$4
-                    WHERE correlation_id=$5", &[
+                    "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3, cp_id=$4, pid=$5
+                    WHERE correlation_id=$6", &[
                         &data.type_field.as_str(),
                         &data.time,
                         &status,
                         &data.data["cp_id"].as_str(),
+                        &data.data["pid"].as_str(),
                         &data.correlation_id.as_str(),
                     ],
                 ).await?;
