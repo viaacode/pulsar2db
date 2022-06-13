@@ -77,7 +77,8 @@ async fn main() -> Result<(), anyhow::Error> {
                         bag_name,
                         cp_id,
                         local_id,
-                        md5_hash_essence,
+                        md5_hash_essence_manifest,
+                        md5_hash_essence_sidecar,
                         essence_filename,
                         essence_filesize,
                         ingest_host,
@@ -88,12 +89,13 @@ async fn main() -> Result<(), anyhow::Error> {
                         last_event_date,
                         status)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-                            $13, $14)", &[
+                            $13, $14, $15)", &[
                         &data.correlation_id.as_str(),
                         &data.data["path"].as_str(),
                         &data.data["cp_id"].as_str(),
                         &data.data["local_id"].as_str(),
-                        &data.data["md5_hash_essence"].as_str(),
+                        &data.data["md5_hash_essence_manifest"].as_str(),
+                        &data.data["md5_hash_essence_sidecar"].as_str(),
                         &data.data["essence_filename"].as_str(),
                         &data.data["essence_filesize"].as_i64(),
                         &data.data["host"].as_str(),
