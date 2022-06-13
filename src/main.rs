@@ -70,6 +70,7 @@ async fn main() -> Result<(), anyhow::Error> {
         log::info!("insert {} into DB", &data.type_field.as_str());
         match data.type_field.as_str() {
             "be.meemoo.sipin.sip.create" => {
+                let status: &str = "SIP_CREATED";
                 let _rows = client.execute(
                     "INSERT INTO sipin_sips (
                         correlation_id,
@@ -101,7 +102,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.time,
                         &data.type_field.as_str(),
                         &data.time,
-                        &"SIP_CREATED",
+                        &status,
                     ],
                 ).await?;
             },
