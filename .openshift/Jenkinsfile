@@ -8,7 +8,7 @@ pipeline {
         metadata:
           labels:
             component: builder
-            lang: ${getBaseImageName()}
+            lang: Rust
             app: pulsar2db
         spec:
           containers:
