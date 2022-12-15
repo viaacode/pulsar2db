@@ -14,6 +14,17 @@ struct TestData {
     data: String,
 }
 
+// Helper functions
+fn split_pid_by_underscore(pid: &str) -> &str{
+    /// Splits a string by the undescore character and returns the first
+    /// element.
+    ///
+    /// Used to derive the "base-pid" from pids for collaterals, eg.:
+    /// `<pid>_srt`.
+    let result: Vec<&str> = pid.split('_').collect();
+    result[0]
+}
+
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -195,7 +206,24 @@ async fn main() -> Result<(), anyhow::Error> {
 mod tests {
     use super::*;
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn split_pid_with_underscore() {
+        let input_pid: &str = "a1b2c3d4e5_str";
+        let result_pid: &str = "a1b2c3d4e5";
+        let result: &str = split_pid_by_underscore(&input_pid);
+        assert_eq!(&result, &result_pid);
+    }
+    #[test]
+    fn split_pid_without_underscore() {
+        let input_pid: &str = "a1b2c3d4e5";
+        let result_pid: &str = "a1b2c3d4e5";
+        let result: &str = split_pid_by_underscore(&input_pid);
+        assert_eq!(&result, &result_pid);
+    }
+    #[test]
+    fn split_pid_with_hyphen() {
+        let input_pid: &str = "a1b2c3d4e5-str";
+        let result_pid: &str = "a1b2c3d4e5-str";
+        let result: &str = split_pid_by_underscore(&input_pid);
+        assert_eq!(&result, &result_pid);
     }
 }
