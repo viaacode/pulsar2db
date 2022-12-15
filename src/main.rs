@@ -16,7 +16,7 @@ struct TestData {
 
 // Helper functions
 
-/// Splits a string by the undescore character and returns the first
+/// Splits a string by the underscore character and returns the first
 /// element.
 ///
 /// Used to derive the "base-pid" from pids for collaterals, eg.:
@@ -38,7 +38,7 @@ async fn main() -> Result<(), anyhow::Error> {
        Err(error) => panic!("{:#?}", error)
     };
 
-    log::info!("Connecting to Pulsar on {}: topcis={}, subscription_name={}", &config.pulsar_host, &config.pulsar_topics, &config.pulsar_subscription_name);
+    log::info!("Connecting to Pulsar on {}: topics={}, subscription_name={}", &config.pulsar_host, &config.pulsar_topics, &config.pulsar_subscription_name);
     let addr = format_pulsar_connection_string(&config);
     let pulsar: Pulsar<_> = Pulsar::builder(addr, TokioExecutor).build().await?;
 
