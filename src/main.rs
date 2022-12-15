@@ -15,12 +15,13 @@ struct TestData {
 }
 
 // Helper functions
+
+/// Splits a string by the undescore character and returns the first
+/// element.
+///
+/// Used to derive the "base-pid" from pids for collaterals, eg.:
+/// `<pid>_srt`.
 fn split_pid_by_underscore(pid: &str) -> &str{
-    /// Splits a string by the undescore character and returns the first
-    /// element.
-    ///
-    /// Used to derive the "base-pid" from pids for collaterals, eg.:
-    /// `<pid>_srt`.
     let result: Vec<&str> = pid.split('_').collect();
     result[0]
 }
@@ -169,6 +170,7 @@ async fn main() -> Result<(), anyhow::Error> {
             },
             "be.meemoo.sipin.aip.create" => {
                 let status: &str = "AIP_CREATED";
+                let pid = split_pid_by_underscore(data.data["pid"].as_str().unwrap());
                 let _rows = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3, cp_id=$4, pid=$5
                     WHERE correlation_id=$6", &[
@@ -176,7 +178,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.time,
                         &status,
                         &data.data["cp_id"].as_str(),
-                        &data.data["pid"].as_str(),
+                        &pid,
                         &data.correlation_id.as_str(),
                     ],
                 ).await?;
