@@ -13,6 +13,6 @@ certain object or key.
 - Clone this repository.
 - Fill in and source an `.env` file (Example in `.env.example`):
   ```bash
-  $ export $(cat .env | xargs)
+  $ export $(grep -v '^#' .env | xargs)
   ```
 - Run with `cargo run`.
