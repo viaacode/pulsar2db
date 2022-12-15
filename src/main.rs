@@ -26,7 +26,7 @@ async fn main() -> Result<(), anyhow::Error> {
        Err(error) => panic!("{:#?}", error)
     };
 
-    log::debug!("Connecting to Pulsar on {}", &config.pulsar_host);
+    log::info!("Connecting to Pulsar on {}: topcis={}, subscription_name={}", &config.pulsar_host, &config.pulsar_topics, &config.pulsar_subscription_name);
     let addr = format_pulsar_connection_string(&config);
     let pulsar: Pulsar<_> = Pulsar::builder(addr, TokioExecutor).build().await?;
 
@@ -41,7 +41,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .await?;
 
     // Postgres client: non-blocking
-    log::debug!("Connecting to Postgres on {}", &config.postgres_host);
+    log::info!("Connecting to Postgres on {}", &config.postgres_host);
     let connection_string = format_postgres_connection_string(&config);
     let (client, connection) = tokio_postgres::connect(&connection_string, NoTls).await?;
 
@@ -65,9 +65,9 @@ async fn main() -> Result<(), anyhow::Error> {
         };
 
         counter += 1;
-        log::info!("got {} messages", counter);
+        log::trace!("got {} messages", counter);
         log::debug!("{:?}", &data);
-        log::info!("insert {} into DB", &data.type_field.as_str());
+        log::info!("insert into DB: {}, correlation_id: {}", &data.type_field.as_str(), &data.correlation_id.as_str());
         match data.type_field.as_str() {
             "be.meemoo.sipin.sip.create" => {
                 let status: &str = "SIP_CREATED";
