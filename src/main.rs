@@ -20,7 +20,8 @@ struct TestData {
 /// element.
 ///
 /// Used to derive the "base-pid" from pids for collaterals, eg.:
-/// `<pid>_srt`.
+/// `<pid>_srt`. Returns the original input string if it doesn't
+/// contain an underscore.
 fn split_pid_by_underscore(pid: &str) -> &str{
     let result: Vec<&str> = pid.split('_').collect();
     result[0]
@@ -81,9 +82,40 @@ async fn main() -> Result<(), anyhow::Error> {
         log::debug!("{:?}", &data);
         log::info!("insert into DB: {}, correlation_id: {}", &data.type_field.as_str(), &data.correlation_id.as_str());
         match data.type_field.as_str() {
+            "persistent://public/sipin/s3.object.create" => {
+                let status: &str = "S3_OBJECT_CREATED";
+                let res = client.execute(
+                    "INSERT INTO sipin_sips (
+                        correlation_id,
+                        bag_name,
+                        ingest_host,
+                        ingest_bucket,
+                        ingest_path_or_key,
+                        first_event_date,
+                        last_event_type,
+                        last_event_date,
+                        status)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", &[
+                        &data.correlation_id.as_str(),
+                        &data.data["subject"].as_str(),
+                        &data.data["s3_message"]["Records"][0]["s3"]["domain"]["s3-endpoint"].as_str(),
+                        &data.data["s3_message"]["Records"][0]["s3"]["bucket"]["name"].as_str(),
+                        &data.data["s3_message"]["Records"][0]["s3"]["object"]["key"].as_str(),
+                        &data.time,
+                        &data.type_field.as_str(),
+                        &data.time,
+                        &status,
+                    ],
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => log::debug!("Rows created: {}", rows),
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
+            },
+            // Legacy sip create event: sip created on FTP
             "be.meemoo.sipin.sip.create" => {
                 let status: &str = "SIP_CREATED";
-                let _rows = client.execute(
+                let res = client.execute(
                     "INSERT INTO sipin_sips (
                         correlation_id,
                         bag_name,
@@ -118,9 +150,14 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.time,
                         &status,
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => log::debug!("Rows created: {}", rows),
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
-            "be.meemoo.sipin.bag.transfer" => {
+            // Legacy and new bag transfer events
+            "be.meemoo.sipin.bag.transfer" | "persistent://public/default/be.meemoo.sipin.bag.transfer" => {
                 let status: &str = "BAG_TRANSFERRED_TO_SIPIN";
                 let _rows = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
@@ -132,7 +169,8 @@ async fn main() -> Result<(), anyhow::Error> {
                     ],
                 ).await?;
             },
-            "be.meemoo.sipin.bag.unzip" => {
+            // Legacy and new bag unzip events
+            "be.meemoo.sipin.bag.unzip" | "persistent://public/sipin/bag.unzip" => {
                 let status: &str = "BAG_UNZIPPED";
                 let _rows = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
@@ -144,7 +182,8 @@ async fn main() -> Result<(), anyhow::Error> {
                     ],
                 ).await?;
             },
-            "be.meemoo.sipin.bag.validate" => {
+            // Legacy and new bag validate events
+            "be.meemoo.sipin.bag.validate" | "persistent://public/sipin/bag.validate" => {
                 let status: &str = "BAG_VALIDATED";
                 let _rows = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
@@ -156,6 +195,7 @@ async fn main() -> Result<(), anyhow::Error> {
                     ],
                 ).await?;
             },
+            // Legacy sip validate event
             "be.meemoo.sipin.sip.validate" => {
                 let status: &str = "SIP_VALIDATED";
                 let _rows = client.execute(
@@ -168,6 +208,7 @@ async fn main() -> Result<(), anyhow::Error> {
                     ],
                 ).await?;
             },
+            // Legacy aip (mh-sip) create event
             "be.meemoo.sipin.aip.create" => {
                 let status: &str = "AIP_CREATED";
                 let pid = split_pid_by_underscore(data.data["pid"].as_str().unwrap());
@@ -179,6 +220,23 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                         &data.data["cp_id"].as_str(),
                         &pid,
+                        &data.correlation_id.as_str(),
+                    ],
+                ).await?;
+            },
+            // Sipin mh-sip create event
+            "persistent://public/sipin/mh-sip.create" => {
+                let status: &str = "MH-SIP_CREATED";
+                let pid = split_pid_by_underscore(data.data["pid"].as_str().unwrap());
+                let _rows = client.execute(
+                    "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3, cp_id=$4, pid=$5, sip_profile=$6
+                    WHERE correlation_id=$7", &[
+                        &data.type_field.as_str(),
+                        &data.time,
+                        &status,
+                        &data.data["cp_id"].as_str(),
+                        &pid,
+                        &data.data["sip_profile"].as_str(),
                         &data.correlation_id.as_str(),
                     ],
                 ).await?;
