@@ -3,9 +3,41 @@
 Subscribe to Pulsar topics and build final state (or a materialized view) for a
 certain object or key.
 
-Since a state building application is, in effect, a tight coupling between it's
-input (CloudEvents in Pulsar, in this case) and it's output (a Postgres table),
-a SQL DDL file for the target table is included.
+## Description
+
+This service subscribes to Pulsar topics and builds final state based on
+information in all events/messages pertaining to a certain key. In this case,
+this key is the `correlation_id`.
+
+This means that all events/messages on topics to which this service subscribes
+that carry the same `correlation_id` will be condensed to a single row/record
+in the database.
+
+Every Pulsar message is deserialized to a CloudEvent as such:
+
+```rust
+pub struct CloudEvent {
+    #[serde(rename = "type")]
+    pub type_field: String,
+    pub source: String,
+    pub correlation_id: String,
+    pub content_type: String,
+    pub time: DateTime<Utc>,
+    pub datacontenttype: String,
+    pub outcome: String,
+    pub specversion: String,
+    pub id: String,
+    pub subject: String,
+    pub data: ::serde_json::Value,
+}
+```
+
+Since the `data`-field is deserialized via `::serde_json::Value`, every message
+conforming to the CloudEvents structure can be deserialized.
+
+And, since a state building application is, in effect, a tight coupling between
+it's input (CloudEvents in Pulsar, in this case) and it's output (a Postgres
+table), a SQL DDL file for the target table is included.
 
 ## Prerequisites
 
