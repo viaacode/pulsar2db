@@ -159,7 +159,7 @@ async fn main() -> Result<(), anyhow::Error> {
             // Legacy and new bag transfer events
             "be.meemoo.sipin.bag.transfer" | "persistent://public/default/be.meemoo.sipin.bag.transfer" => {
                 let status: &str = "BAG_TRANSFERRED_TO_SIPIN";
-                let _rows = client.execute(
+                let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
                     WHERE correlation_id=$4", &[
                         &data.type_field.as_str(),
@@ -167,12 +167,20 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                         &data.correlation_id.as_str(),
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => match rows {
+                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
+                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
+                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
+                    },
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
             // Legacy and new bag unzip events
             "be.meemoo.sipin.bag.unzip" | "persistent://public/sipin/bag.unzip" => {
                 let status: &str = "BAG_UNZIPPED";
-                let _rows = client.execute(
+                let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
                     WHERE correlation_id=$4", &[
                         &data.type_field.as_str(),
@@ -180,12 +188,20 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                         &data.correlation_id.as_str(),
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => match rows {
+                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
+                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
+                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
+                    },
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
             // Legacy and new bag validate events
             "be.meemoo.sipin.bag.validate" | "persistent://public/sipin/bag.validate" => {
                 let status: &str = "BAG_VALIDATED";
-                let _rows = client.execute(
+                let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
                     WHERE correlation_id=$4", &[
                         &data.type_field.as_str(),
@@ -193,12 +209,20 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                         &data.correlation_id.as_str(),
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => match rows {
+                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
+                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
+                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
+                    },
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
             // Legacy sip validate event
             "be.meemoo.sipin.sip.validate" => {
                 let status: &str = "SIP_VALIDATED";
-                let _rows = client.execute(
+                let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
                     WHERE correlation_id=$4", &[
                         &data.type_field.as_str(),
@@ -206,13 +230,21 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                         &data.correlation_id.as_str(),
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => match rows {
+                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
+                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
+                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
+                    },
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
             // Legacy aip (mh-sip) create event
             "be.meemoo.sipin.aip.create" => {
                 let status: &str = "AIP_CREATED";
                 let pid = split_pid_by_underscore(data.data["pid"].as_str().unwrap());
-                let _rows = client.execute(
+                let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3, cp_id=$4, pid=$5
                     WHERE correlation_id=$6", &[
                         &data.type_field.as_str(),
@@ -222,13 +254,21 @@ async fn main() -> Result<(), anyhow::Error> {
                         &pid,
                         &data.correlation_id.as_str(),
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => match rows {
+                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
+                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
+                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
+                    },
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
             // Sipin mh-sip create event
             "persistent://public/sipin/mh-sip.create" => {
                 let status: &str = "MH-SIP_CREATED";
                 let pid = split_pid_by_underscore(data.data["pid"].as_str().unwrap());
-                let _rows = client.execute(
+                let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3, cp_id=$4, pid=$5, sip_profile=$6
                     WHERE correlation_id=$7", &[
                         &data.type_field.as_str(),
@@ -239,11 +279,19 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.data["sip_profile"].as_str(),
                         &data.correlation_id.as_str(),
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => match rows {
+                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
+                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
+                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
+                    },
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
             "be.meemoo.sipin.aip.transfer" => {
                 let status: &str = "AIP_DELIVERED_TO_MAM";
-                let _rows = client.execute(
+                let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
                     WHERE correlation_id=$4", &[
                         &data.type_field.as_str(),
@@ -251,7 +299,15 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                         &data.correlation_id.as_str(),
                     ],
-                ).await?;
+                ).await;
+                let _rows = match res {
+                    Ok(rows) => match rows {
+                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
+                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
+                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
+                    },
+                    Err(error) => log::warn!("Problem: {:?}", error),
+                };
             },
             _ => {
                 log::warn!("Unknown event type: {:#?}", &data.type_field.as_str());
