@@ -104,6 +104,7 @@ async fn main() -> Result<(), anyhow::Error> {
         log::debug!("{:?}", &data);
         log::info!("insert into DB: {}, correlation_id: {}", &data.type_field.as_str(), &data.correlation_id.as_str());
         match data.type_field.as_str() {
+            // Sipin S3 object create event: sip uploaded to S3
             "persistent://public/sipin/s3.object.create" => {
                 let status: &str = "S3_OBJECT_CREATED";
                 let res = client.execute(
@@ -119,7 +120,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         status)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", &[
                         &data.correlation_id.as_str(),
-                        &data.data["subject"].as_str(),
+                        &data.subject.as_str(),
                         &data.data["s3_message"]["Records"][0]["s3"]["domain"]["s3-endpoint"].as_str(),
                         &data.data["s3_message"]["Records"][0]["s3"]["bucket"]["name"].as_str(),
                         &data.data["s3_message"]["Records"][0]["s3"]["object"]["key"].as_str(),
