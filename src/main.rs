@@ -6,13 +6,35 @@ use pulsar::{
     DeserializeMessage, Pulsar, TokioExecutor,
 };
 use tokio_postgres::NoTls;
-use regex::Regex;
 use pulsar2db::*;
 
 #[derive(Serialize, Deserialize)]
 struct TestData {
     data: String,
 }
+
+// Store our list of topics as an array of string slices.
+// The order of the topics is the natural order of an event.
+const TOPICS: [&'static str; 16] = [
+    // All topics in de `sipin` namespace.
+    "public/sipin/s3.object.create",
+    "public/sipin/bag.transfer",
+    "public/sipin/bag.unzip",
+    "public/sipin/bag.validate",
+    "public/sipin/sip.validate.xsd",
+    "public/sipin/sip.loadgraph",
+    "public/sipin/sip.validate.shacl",
+    "public/sipin/mh-sip.create",
+    "public/sipin/mh-sip.transfer",
+    // All topics in the `default` namespace (legacy SIPIN)
+    "public/default/be.meemoo.sipin.sip.create",
+    "public/default/be.meemoo.sipin.bag.transfer",
+    "public/default/be.meemoo.sipin.bag.unzip",
+    "public/default/be.meemoo.sipin.bag.validate",
+    "public/default/be.meemoo.sipin.sip.validate",
+    "public/default/be.meemoo.sipin.aip.create",
+    "public/default/be.meemoo.sipin.aip.transfer",
+];
 
 // Helper functions
 
@@ -39,14 +61,14 @@ async fn main() -> Result<(), anyhow::Error> {
        Err(error) => panic!("{:#?}", error)
     };
 
-    log::info!("Connecting to Pulsar on {}: topics={}, subscription_name={}", &config.pulsar_host, &config.pulsar_topics, &config.pulsar_subscription_name);
+    log::info!("Connecting to Pulsar on {}: topics={:?}, subscription_name={}", &config.pulsar_host, &TOPICS, &config.pulsar_subscription_name);
     let addr = format_pulsar_connection_string(&config);
     let pulsar: Pulsar<_> = Pulsar::builder(addr, TokioExecutor).build().await?;
 
     // Pulsar consumer
     let mut consumer: Consumer<CloudEvent, _> = pulsar
         .consumer()
-        .with_topic_regex(Regex::new(&config.pulsar_topics).unwrap())
+        .with_topics(&TOPICS)
         .with_consumer_name(&config.pulsar_consumer_name)
         .with_subscription_type(SubType::Exclusive)
         .with_subscription(&config.pulsar_subscription_name)
