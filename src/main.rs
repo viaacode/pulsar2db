@@ -7,6 +7,7 @@ use pulsar::{
 };
 use tokio_postgres::NoTls;
 use pulsar2db::*;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 struct TestData {
@@ -47,6 +48,13 @@ const TOPICS: [&'static str; 16] = [
 fn split_pid_by_underscore(pid: &str) -> &str{
     let result: Vec<&str> = pid.split('_').collect();
     result[0]
+}
+
+/// Return the filename from a given path
+fn filename_from_path(full_path: Option<&str>) -> Option<&str> {
+    let path = Path::new(full_path.unwrap());
+    let filename = path.file_name().unwrap();
+    filename.to_str()
 }
 
 
@@ -138,6 +146,7 @@ async fn main() -> Result<(), anyhow::Error> {
             // Legacy sip create event: sip created on FTP
             "be.meemoo.sipin.sip.create" => {
                 let status: &str = "SIP_CREATED";
+                let filename = filename_from_path(data.data["path"].as_str());
                 let res = client.execute(
                     "INSERT INTO sipin_sips (
                         correlation_id,
@@ -158,7 +167,7 @@ async fn main() -> Result<(), anyhow::Error> {
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
                             $13, $14, $15)", &[
                         &data.correlation_id.as_str(),
-                        &data.data["path"].as_str(),
+                        &filename.unwrap(),
                         &data.data["cp_id"].as_str(),
                         &data.data["local_id"].as_str(),
                         &data.data["md5_hash_essence_manifest"].as_str(),
@@ -364,5 +373,12 @@ mod tests {
         let result_pid: &str = "a1b2c3d4e5-str";
         let result: &str = split_pid_by_underscore(&input_pid);
         assert_eq!(&result, &result_pid);
+    }
+    #[test]
+    fn filename_from_path_with_filename() {
+        let input_path = Some("/home/username/files/directory/filename-123.bag.zip");
+        let expected_filename = "filename-123.bag.zip";
+        let result = filename_from_path(input_path).unwrap();
+        assert_eq!(&result, &expected_filename);
     }
 }
