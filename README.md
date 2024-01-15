@@ -36,7 +36,7 @@ Since the `data`-field is deserialized via `::serde_json::Value`, every message
 conforming to the CloudEvents structure can be deserialized.
 
 And, since a state building application is, in effect, a tight coupling between
-it's input (CloudEvents in Pulsar, in this case) and it's output (a Postgres
+its input (CloudEvents in Pulsar, in this case) and its output (a Postgres
 table), a SQL DDL file for the target table is included.
 
 ## Prerequisites
