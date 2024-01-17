@@ -138,7 +138,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => log::debug!("Rows created: {}", rows),
                     Err(error) => log::warn!("Problem: {:?}", error),
                 };
@@ -183,7 +183,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => log::debug!("Rows created: {}", rows),
                     Err(error) => log::warn!("Problem: {:?}", error),
                 };
@@ -200,7 +200,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => match rows {
                         0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
@@ -221,7 +221,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => match rows {
                         0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
@@ -242,7 +242,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => match rows {
                         0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
@@ -263,7 +263,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => match rows {
                         0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
@@ -287,7 +287,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => match rows {
                         0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
@@ -312,7 +312,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => match rows {
                         0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
@@ -332,7 +332,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
-                let _rows = match res {
+                match res {
                     Ok(rows) => match rows {
                         0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
