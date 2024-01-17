@@ -140,7 +140,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 ).await;
                 match res {
                     Ok(rows) => log::debug!("Rows created: {}", rows),
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             // Legacy sip create event: sip created on FTP
@@ -185,7 +185,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 ).await;
                 match res {
                     Ok(rows) => log::debug!("Rows created: {}", rows),
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             // Legacy and new bag transfer events
@@ -206,7 +206,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
                         _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
                     },
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             // Legacy and new bag unzip events
@@ -227,7 +227,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
                         _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
                     },
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             // Legacy and new bag validate events
@@ -248,7 +248,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
                         _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
                     },
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             // Legacy sip validate event
@@ -269,7 +269,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
                         _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
                     },
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             // Legacy aip (mh-sip) create event
@@ -293,7 +293,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
                         _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
                     },
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             // Sipin mh-sip create event
@@ -318,7 +318,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
                         _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
                     },
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             "be.meemoo.sipin.aip.transfer" => {
@@ -338,7 +338,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
                         _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
                     },
-                    Err(error) => log::warn!("Problem: {:?}", error),
+                    Err(error) => log::error!("Problem: {:?}", error),
                 };
             },
             _ => {
