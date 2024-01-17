@@ -16,11 +16,14 @@ in the database.
 Every Pulsar message is deserialized to a CloudEvent as such:
 
 ```rust
+#[serde(rename_all = "camelCase")]
 pub struct CloudEvent {
     #[serde(rename = "type")]
     pub type_field: String,
     pub source: String,
+    #[serde(rename = "correlation_id")]
     pub correlation_id: String,
+    #[serde(rename = "content_type")]
     pub content_type: String,
     pub time: DateTime<Utc>,
     pub datacontenttype: String,
