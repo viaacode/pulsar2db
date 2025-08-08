@@ -2,7 +2,7 @@
 extern crate serde;
 use futures::TryStreamExt;
 use pulsar::{
-    message::proto::command_subscribe::SubType, message::Payload, Consumer, DeserializeMessage,
+    message::proto::command_subscribe::SubType, Consumer,
     Pulsar, TokioExecutor,
 };
 use pulsar2db::*;
