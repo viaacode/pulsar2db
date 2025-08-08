@@ -16,17 +16,7 @@ struct TestData {
 
 // Store our list of topics as an array of string slices.
 // The order of the topics is the natural order of an event.
-const TOPICS: [&'static str; 16] = [
-    // All topics in de `sipin` namespace.
-    "public/sipin/s3.object.create",
-    "public/sipin/bag.transfer",
-    "public/sipin/bag.unzip",
-    "public/sipin/bag.validate",
-    "public/sipin/sip.validate.xsd",
-    "public/sipin/sip.loadgraph",
-    "public/sipin/sip.validate.shacl",
-    "public/sipin/mh-sip.create",
-    "public/sipin/mh-sip.transfer",
+const TOPICS: [&'static str; 7] = [
     // All topics in the `default` namespace (legacy SIPIN)
     "public/default/be.meemoo.sipin.sip.create",
     "public/default/be.meemoo.sipin.bag.transfer",
@@ -112,37 +102,6 @@ async fn main() -> Result<(), anyhow::Error> {
         log::debug!("{:?}", &data);
         log::info!("insert into DB: {}, correlation_id: {}", &data.type_field.as_str(), &data.correlation_id.as_str());
         match data.type_field.as_str() {
-            // Sipin S3 object create event: sip uploaded to S3
-            "persistent://public/sipin/s3.object.create" => {
-                let status: &str = "S3_OBJECT_CREATED";
-                let res = client.execute(
-                    "INSERT INTO sipin_sips (
-                        correlation_id,
-                        bag_name,
-                        ingest_host,
-                        ingest_bucket,
-                        ingest_path_or_key,
-                        first_event_date,
-                        last_event_type,
-                        last_event_date,
-                        status)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", &[
-                        &data.correlation_id.as_str(),
-                        &data.subject.as_str(),
-                        &data.data["s3_message"]["Records"][0]["s3"]["domain"]["s3-endpoint"].as_str(),
-                        &data.data["s3_message"]["Records"][0]["s3"]["bucket"]["name"].as_str(),
-                        &data.data["s3_message"]["Records"][0]["s3"]["object"]["key"].as_str(),
-                        &data.time,
-                        &data.type_field.as_str(),
-                        &data.time,
-                        &status,
-                    ],
-                ).await;
-                match res {
-                    Ok(rows) => log::debug!("Rows created: {}", rows),
-                    Err(error) => log::error!("Problem: {:?}", error),
-                };
-            },
             // Legacy sip create event: sip created on FTP
             "be.meemoo.sipin.sip.create" => {
                 let status: &str = "SIP_CREATED";
@@ -189,7 +148,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 };
             },
             // Legacy and new bag transfer events
-            "be.meemoo.sipin.bag.transfer" | "persistent://public/default/be.meemoo.sipin.bag.transfer" => {
+            "be.meemoo.sipin.bag.transfer" => {
                 let status: &str = "BAG_TRANSFERRED_TO_SIPIN";
                 let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
@@ -210,7 +169,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 };
             },
             // Legacy and new bag unzip events
-            "be.meemoo.sipin.bag.unzip" | "persistent://public/sipin/bag.unzip" => {
+            "be.meemoo.sipin.bag.unzip" => {
                 let status: &str = "BAG_UNZIPPED";
                 let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
@@ -231,7 +190,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 };
             },
             // Legacy and new bag validate events
-            "be.meemoo.sipin.bag.validate" | "persistent://public/sipin/bag.validate" => {
+            "be.meemoo.sipin.bag.validate" => {
                 let status: &str = "BAG_VALIDATED";
                 let res = client.execute(
                     "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3
@@ -284,31 +243,6 @@ async fn main() -> Result<(), anyhow::Error> {
                         &status,
                         &data.data["cp_id"].as_str(),
                         &pid,
-                        &data.correlation_id.as_str(),
-                    ],
-                ).await;
-                match res {
-                    Ok(rows) => match rows {
-                        0 => log::warn!("No rows updated for event {}! correlation_id {} not present?", &data.type_field.as_str(), &data.correlation_id.as_str()),
-                        1 => log::debug!("Rows updated for event {}: {}", &data.type_field.as_str(), rows),
-                        _ => log::warn!("Rows updated for event {}: {}. More then one record with correlation_id {}", &data.type_field.as_str(), rows, &data.correlation_id.as_str()),
-                    },
-                    Err(error) => log::error!("Problem: {:?}", error),
-                };
-            },
-            // Sipin mh-sip create event
-            "persistent://public/sipin/mh-sip.create" => {
-                let status: &str = "MH-SIP_CREATED";
-                let pid = split_pid_by_underscore(data.data["pid"].as_str().unwrap());
-                let res = client.execute(
-                    "UPDATE sipin_sips SET last_event_type=$1, last_event_date=$2, status=$3, cp_id=$4, pid=$5, sip_profile=$6
-                    WHERE correlation_id=$7", &[
-                        &data.type_field.as_str(),
-                        &data.time,
-                        &status,
-                        &data.data["cp_id"].as_str(),
-                        &pid,
-                        &data.data["sip_profile"].as_str(),
                         &data.correlation_id.as_str(),
                     ],
                 ).await;
