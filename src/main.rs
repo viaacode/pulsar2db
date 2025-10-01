@@ -101,6 +101,18 @@ async fn main() -> Result<(), anyhow::Error> {
             }
         };
 
+        // skip events where the event data's outcome is "fail"
+        if let Some(outcome) = data.data.get("outcome").and_then(|v| v.as_str()) {
+            if outcome.eq_ignore_ascii_case("fail") {
+                log::error!(
+                    "Problem: Skipping event with outcome 'fail' (type: {}, correlation_id: {})",
+                    &data.type_field,
+                    &data.correlation_id
+                );
+                continue;
+            }
+        }
+
         counter += 1;
         log::trace!("got {} messages", counter);
         log::debug!("{:?}", &data);
