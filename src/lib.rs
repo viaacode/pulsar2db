@@ -6,10 +6,6 @@ use pulsar::{message::Payload, DeserializeMessage};
 #[derive(Deserialize, Debug)]
 pub struct Config {
     // Pulsar
-    #[serde(default="default_user_pass")]
-    pub pulsar_user: String,
-    #[serde(default="default_user_pass")]
-    pub pulsar_passwd: String,
     #[serde(default="default_host")]
     pub pulsar_host: String,
     #[serde(default="default_port")]
