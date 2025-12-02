@@ -1,69 +1,67 @@
-use std::str;
-use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 use pulsar::{message::Payload, DeserializeMessage};
+use serde::{Deserialize, Serialize};
+use std::str;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
     // Pulsar
-    #[serde(default="default_user_pass")]
+    #[serde(default = "default_user_pass")]
     pub pulsar_user: String,
-    #[serde(default="default_user_pass")]
+    #[serde(default = "default_user_pass")]
     pub pulsar_passwd: String,
-    #[serde(default="default_host")]
+    #[serde(default = "default_host")]
     pub pulsar_host: String,
-    #[serde(default="default_port")]
+    #[serde(default = "default_port")]
     pub pulsar_port: String,
     pub pulsar_topics: String,
-    #[serde(default="default_consumer_name")]
+    #[serde(default = "default_consumer_name")]
     pub pulsar_consumer_name: String,
-    #[serde(default="default_subscription_name")]
+    #[serde(default = "default_subscription_name")]
     pub pulsar_subscription_name: String,
     // Postgres
-    #[serde(default="default_user_pass")]
+    #[serde(default = "default_user_pass")]
     pub postgres_user: String,
-    #[serde(default="default_user_pass")]
+    #[serde(default = "default_user_pass")]
     pub postgres_passwd: String,
-    #[serde(default="default_host")]
+    #[serde(default = "default_host")]
     pub postgres_host: String,
-    #[serde(default="default_database")]
+    #[serde(default = "default_database")]
     pub postgres_database: String,
 }
 
-fn default_user_pass() -> String  {
-  String::from("admin")
+fn default_user_pass() -> String {
+    String::from("admin")
 }
 
-fn default_host() -> String  {
-  String::from("localhost")
+fn default_host() -> String {
+    String::from("localhost")
 }
 
-fn default_port() -> String  {
-  String::from("5672")
+fn default_port() -> String {
+    String::from("5672")
 }
 
-fn default_database() -> String  {
-  String::from("postgres")
+fn default_database() -> String {
+    String::from("postgres")
 }
 
-fn default_consumer_name() -> String  {
-  String::from("pulsar2db")
+fn default_consumer_name() -> String {
+    String::from("pulsar2db")
 }
 
-fn default_subscription_name() -> String  {
-  String::from("pulsar2db_subscription")
+fn default_subscription_name() -> String {
+    String::from("pulsar2db_subscription")
 }
 
 // TODO: These 2 conn string fn's can become methods on their respective configs
 pub fn format_pulsar_connection_string(config: &Config) -> String {
-    format!("pulsar://{}:{}",
-        config.pulsar_host,
-        config.pulsar_port
-    )
+    format!("pulsar://{}:{}", config.pulsar_host, config.pulsar_port)
 }
 
 pub fn format_postgres_connection_string(config: &Config) -> String {
-    format!("postgresql://{}:{}@{}/{}",
+    format!(
+        "postgresql://{}:{}@{}/{}",
         config.postgres_user,
         config.postgres_passwd,
         config.postgres_host,
